@@ -2,7 +2,7 @@ import telebot
 import openai
 
 
-from .env import API_KEY, YOUR_TOKEN
+from env import API_KEY, YOUR_TOKEN
 
 openai.api_key = {API_KEY}
 TOKEN = {YOUR_TOKEN}
