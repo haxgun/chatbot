@@ -1,8 +1,11 @@
 import telebot
 import openai
 
-openai.api_key = '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'
-TOKEN = '6020504571:AAHKKAEtyy5cUBRyFcinLOY73qsheeQXkHw'
+
+from .env import API_KEY, YOUR_TOKEN
+
+openai.api_key = {API_KEY}
+TOKEN = {YOUR_TOKEN}
 bot = telebot.TeleBot(TOKEN)
 
 # Добавьте глобальный словарь для хранения истории переписки
