@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-apikey = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 
 log_dir = os.path.join(os.path.dirname(__file__), "ChatGPT_Logs")
