@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-BOT_TOKEN = telebot.TeleBot(os.getenv("BOT_TOKEN"))
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Replace with your Claude API key
 CLAUDE_API_KEY = os.getenv("CLOUDAI_API_KEY")
