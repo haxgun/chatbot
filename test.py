@@ -12,9 +12,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # Replace with your Claude API key
 CLAUDE_API_KEY = os.getenv("CLOUDAI_API_KEY")
 
-# Claude API endpoint
-CLAUDE_API_URL = "https://api.anthropic.com/v1/chat/completions"
-
 log_dir = os.path.join(os.path.dirname(__file__), "ChatGPT_Logs")
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
@@ -24,6 +21,9 @@ logging.basicConfig(
     format="%(levelname)s: %(asctime)s %(message)s",
     datefmt="%d/%m/%Y %H:%M:%S",
 )
+
+# Claude API endpoint
+CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -55,7 +55,7 @@ def ask_claude(message):
         response = requests.post(CLAUDE_API_URL, json=data, headers=headers)
         response.raise_for_status()
 
-        claude_response = response.json()["choices"][0]["message"]["content"]
+        claude_response = response.json()["content"][0]["text"]
         bot.reply_to(message, claude_response)
     except requests.exceptions.RequestException as e:
         bot.reply_to(message, f"An error occurred: {str(e)}")
