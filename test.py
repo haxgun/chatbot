@@ -2,11 +2,13 @@ import logging
 import telebot
 import requests
 import os
+from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 
 from dotenv import load_dotenv
 
 
 load_dotenv()
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Replace with your Claude API key
@@ -22,8 +24,8 @@ logging.basicConfig(
     datefmt="%d/%m/%Y %H:%M:%S",
 )
 
-# Claude API endpoint
-CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
+# Initialize the Anthropic client
+anthropic = Anthropic(api_key=CLAUDE_API_KEY)
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -39,26 +41,18 @@ def send_welcome(message):
 def ask_claude(message):
     user_input = message.text
 
-    headers = {
-        "Content-Type": "application/json",
-        "x-api-key": CLAUDE_API_KEY,
-        "anthropic-version": "2023-06-01",
-    }
-
-    data = {
-        "model": "claude-3-opus-20240229",
-        "max_tokens": 1000,
-        "messages": [{"role": "user", "content": user_input}],
-    }
-
     try:
-        response = requests.post(CLAUDE_API_URL, json=data, headers=headers)
-        response.raise_for_status()
+        completion = anthropic.completions.create(
+            model="claude-3-opus-20240229",
+            max_tokens_to_sample=1000,
+            prompt=f"{HUMAN_PROMPT} {user_input}{AI_PROMPT}",
+        )
 
-        claude_response = response.json()["content"][0]["text"]
+        claude_response = completion.completion
         bot.reply_to(message, claude_response)
-    except requests.exceptions.RequestException as e:
-        bot.reply_to(message, f"An error occurred: {str(e)}")
+    except Exception as e:
+        error_message = f"An error occurred: {str(e)}"
+        bot.reply_to(message, error_message)
 
 
 bot.polling()
