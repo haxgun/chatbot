@@ -13,7 +13,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 CLAUDE_API_KEY = os.getenv("CLOUDAI_API_KEY")
 
 # Claude API endpoint
-CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
+CLAUDE_API_URL = "https://api.anthropic.com/v1/chat/completions"
 
 log_dir = os.path.join(os.path.dirname(__file__), "ChatGPT_Logs")
 if not os.path.exists(log_dir):
