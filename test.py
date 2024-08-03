@@ -1,15 +1,19 @@
-import openai
-import telebot
 import logging
+import telebot
+import requests
 import os
-import time
+
 from dotenv import load_dotenv
 
 
 load_dotenv()
+BOT_TOKEN = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
+# Replace with your Claude API key
+CLAUDE_API_KEY = os.getenv("CLOUDAI_API_KEY")
+
+# Claude API endpoint
+CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 
 log_dir = os.path.join(os.path.dirname(__file__), "ChatGPT_Logs")
 if not os.path.exists(log_dir):
@@ -21,42 +25,39 @@ logging.basicConfig(
     datefmt="%d/%m/%Y %H:%M:%S",
 )
 
+bot = telebot.TeleBot(BOT_TOKEN)
 
-@bot.message_handler(commands=["start"])
+
+@bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
     bot.reply_to(
-        message,
-        "Привет!\nЯ ChatGPT 3.5 Telegram Bot\U0001F916\nЗадай мне любой вопрос и я постараюсь на него ответиь",
+        message, "Hello! Send me a message, and I'll ask Claude for a response."
     )
 
 
-def generate_response(prompt):
-    completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
-    )
-    return completion.choices[0].message.content
+@bot.message_handler(func=lambda message: True)
+def ask_claude(message):
+    user_input = message.text
 
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-Key": CLAUDE_API_KEY,
+    }
 
-@bot.message_handler(commands=["bot"])
-def command_message(message):
-    prompt = message.text
-    response = generate_response(prompt)
-    bot.reply_to(message, text=response)
+    data = {
+        "model": "claude-3-opus-20240229",
+        "max_tokens": 1000,
+        "messages": [{"role": "user", "content": user_input}],
+    }
 
-
-@bot.message_handler(func=lambda _: True)
-def handle_message(message):
-    prompt = message.text
-    response = generate_response(prompt)
-    bot.send_message(chat_id=message.from_user.id, text=response)
-
-
-print("ChatGPT Bot is working")
-
-while True:
     try:
-        bot.polling()
-    except (telebot.apihelper.ApiException, ConnectionError) as e:
-        logging.error(str(e))
-        time.sleep(5)
-        continue
+        response = requests.post(CLAUDE_API_URL, json=data, headers=headers)
+        response.raise_for_status()
+
+        claude_response = response.json()["content"][0]["text"]
+        bot.reply_to(message, claude_response)
+    except requests.exceptions.RequestException as e:
+        bot.reply_to(message, f"An error occurred: {str(e)}")
+
+
+bot.polling()
