@@ -41,7 +41,8 @@ def ask_claude(message):
 
     headers = {
         "Content-Type": "application/json",
-        "X-API-Key": CLAUDE_API_KEY,
+        "x-api-key": CLAUDE_API_KEY,
+        "anthropic-version": "2023-06-01",
     }
 
     data = {
@@ -54,7 +55,7 @@ def ask_claude(message):
         response = requests.post(CLAUDE_API_URL, json=data, headers=headers)
         response.raise_for_status()
 
-        claude_response = response.json()["content"][0]["text"]
+        claude_response = response.json()["choices"][0]["message"]["content"]
         bot.reply_to(message, claude_response)
     except requests.exceptions.RequestException as e:
         bot.reply_to(message, f"An error occurred: {str(e)}")
