@@ -1,16 +1,36 @@
+import logging
 import os
-from dotenv import load_dotenv, find_dotenv
 
+import openai
+import telebot
+from dotenv import load_dotenv
+from telebot import StateMemoryStorage
 
-if not find_dotenv():
-    exit("Переменные окружения не загружены т.к отсутствует файл .env")
-else:
-    load_dotenv()
+load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 DEFAULT_COMMANDS = (
     ("start", "Запустить бота"),
     ("help", "Вывести справку"),
     ("info", "Справка по работе"),
 )
+
+storage = StateMemoryStorage()
+
+bot = telebot.TeleBot(BOT_TOKEN, state_storage=storage)
+openai.api_key = OPENAI_API_KEY
+
+log_dir = os.path.join(os.path.dirname(__file__), "ChatGPT_Logs")
+ch = logging.StreamHandler()
+logger = logging.getLogger(__name__)
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+logging.basicConfig(
+    filename=os.path.join(log_dir, "error.log"),
+    level=logging.DEBUG,
+    format="%(levelname)s: %(asctime)s %(message)s",
+    datefmt="%d/%m/%Y %H:%M:%S",
+)
+ch.setLevel(logging.DEBUG)
+logger.addHandler(ch)
