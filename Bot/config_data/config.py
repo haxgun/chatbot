@@ -14,6 +14,7 @@ DEFAULT_COMMANDS = (
     ("start", "Запустить бота"),
     ("help", "Вывести справку"),
     ("info", "Справка по работе"),
+    ("donate", "Справка по работе"),
 )
 
 storage = StateMemoryStorage()
