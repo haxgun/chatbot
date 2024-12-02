@@ -1,7 +1,7 @@
 import openai
 from telebot.types import Message
 
-from config_data.config import bot  # Импортируем bot из config
+from config import bot
 from dialog_manager import save_dialog, load_dialog_context
 
 
